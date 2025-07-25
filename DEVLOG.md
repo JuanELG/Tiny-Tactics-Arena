@@ -19,6 +19,7 @@
 | --------- | --------------------------------------- | ----------------------------- |
 |    1      | START: Fork Asteroids repo              | 		              |
 |    2      | Add initial DEVLOG.md	              | db350075		      |
+|    3      | Add multiplayer playmode package        | b2fd2250		      |
 ---
 
 ## 3. Key Design Decisions

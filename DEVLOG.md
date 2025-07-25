@@ -18,6 +18,7 @@
 | Change #  | Task                                    | Commit / Artifact   	      |
 | --------- | --------------------------------------- | ----------------------------- |
 |    1      | START: Fork Asteroids repo              | 		              |
+|    2      | Add initial DEVLOG.md	              | db350075		      |
 ---
 
 ## 3. Key Design Decisions

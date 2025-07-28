@@ -1,12 +1,10 @@
 using Unity.Entities;
 using Unity.Transforms;
-using Unity.NetCode;
-using Unity.Collections;
 using Unity.Burst;
 
 namespace Asteroids.Mixed
 {
-    [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [BurstCompile]
     public partial struct BulletSystem : ISystem
     {
@@ -15,6 +13,7 @@ namespace Asteroids.Mixed
         {
             state.RequireForUpdate<BulletTagComponent>();
         }
+
         [BurstCompile]
         [WithAll(typeof(Simulate), typeof(BulletTagComponent))]
         partial struct BulletJob : IJobEntity
@@ -27,6 +26,7 @@ namespace Asteroids.Mixed
             }
 
         }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {

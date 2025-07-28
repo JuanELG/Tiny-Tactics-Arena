@@ -1,14 +1,14 @@
 {
-    "name": "Asteroids.CI",
+    "name": "Asteroids.Utils",
     "rootNamespace": "",
     "references": [
-        "Unity.Entities",
-        "Unity.Collections",
-        "Unity.Burst"
+        "Unity.Burst",
+        "Unity.Mathematics",
+        "Asteroids.Mixed"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
-    "allowUnsafeCode": true,
+    "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,

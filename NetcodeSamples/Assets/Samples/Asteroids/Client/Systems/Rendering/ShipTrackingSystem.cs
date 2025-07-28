@@ -4,8 +4,6 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 using UnityEngine;
-using Unity.NetCode;
-using UnityEngine.Rendering;
 using Unity.Burst;
 
 namespace Asteroids.Client
@@ -44,7 +42,7 @@ namespace Asteroids.Client
             m_Teleport = new NativeArray<int>(1, Allocator.Persistent);
             m_Teleport[0] = 1;
             m_RenderOffset = new NativeArray<float2>(2, Allocator.Persistent);
-            m_LevelGroup = GetEntityQuery(ComponentType.ReadWrite<LevelComponent>());
+            m_LevelGroup = GetEntityQuery(ComponentType.ReadWrite<GameSettings>());
             RequireForUpdate(m_LevelGroup);
         }
 
@@ -57,7 +55,7 @@ namespace Asteroids.Client
         override protected void OnUpdate()
         {
             JobHandle levelHandle;
-            SystemAPI.TryGetSingletonEntity<ShipCommandData>(out var localPlayerShip);
+            SystemAPI.TryGetSingletonEntity<ShipInputComponent>(out var localPlayerShip);
 
             var shipTransform = GetComponentLookup<LocalTransform>(true);
 
@@ -66,8 +64,7 @@ namespace Asteroids.Client
             var screenWidthHalf = Screen.width/2;
             var screenHeightHalf = Screen.height/2;
 
-            var level = m_LevelGroup.ToComponentDataListAsync<LevelComponent>(World.UpdateAllocator.ToAllocator,
-                out levelHandle);
+            var level = m_LevelGroup.ToComponentDataListAsync<GameSettings>(World.UpdateAllocator.ToAllocator, out levelHandle);
             var teleport = m_Teleport;
 
             var renderOffset = m_RenderOffset;
@@ -85,8 +82,8 @@ namespace Asteroids.Client
             {
                 const float mapEdgePaddingPercent = .2f;
                 float mapEdgeCameraPadding = screenHeight * mapEdgePaddingPercent;
-                int mapWidth = level[0].levelHeight;
-                int mapHeight = level[0].levelHeight;
+                int mapWidth = level[0].levelData.levelWidth;
+                int mapHeight = level[0].levelData.levelHeight;
                 int nextTeleport = 1;
 
 
@@ -124,11 +121,9 @@ namespace Asteroids.Client
 
                     renderOffset[0] = offset;
                 }
-
-
                 teleport[0] = nextTeleport;
             }).Schedule(JobHandle.CombineDependencies(Dependency, levelHandle));
-            // The one frame latency for updating hte camera position can cause stutter, so do a sync update of the offset of now
+            // The one frame latency for updating the camera position can cause stutter, so do a sync update of the offset of now
             trackJob.Complete();
             curOffset = renderOffset[0];
             camera.transform.position = new Vector3(curOffset.x + screenWidthHalf, curOffset.y + screenHeightHalf, -0.5f);

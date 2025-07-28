@@ -8,11 +8,10 @@
         "Unity.Transforms",
         "Unity.Collections",
         "Unity.Mathematics",
-        "Unity.Networking.Transport",
-        "Unity.NetCode",
         "Asteroids.Mixed",
         "Unity.Entities.Graphics",
-        "SamplesCommon.Client"
+        "SamplesCommon.Client",
+        "Asteroids.Utils"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

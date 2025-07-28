@@ -2,8 +2,6 @@ using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Random = UnityEngine.Random;
-using Unity.NetCode;
 using Unity.Rendering;
 using Unity.Burst;
 
@@ -104,7 +102,7 @@ namespace Asteroids.Client
             var job = new InitializeParticleJob
             {
                 commandBuffer = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged).AsParallelWriter(),
-                rand = new Unity.Mathematics.Random((uint)NetworkTimeSystem.TimestampMS)
+                rand = Random.CreateFromIndex((uint)UnityEngine.Time.frameCount)
             };
             state.Dependency = job.ScheduleParallel(state.Dependency);
         }
@@ -113,14 +111,14 @@ namespace Asteroids.Client
         partial struct InitializeParticleJob : IJobEntity
         {
             public EntityCommandBuffer.ParallelWriter commandBuffer;
-            public Unity.Mathematics.Random rand;
+            public Random rand;
             public void Execute(Entity entity, [EntityIndexInChunk] int entityIndexInChunk,
 
                 ref LocalTransform transform, ref ParticleVelocity velocity,
 
                 in ParticleEmitterComponentData emitter)
             {
-                var curRand = new Unity.Mathematics.Random(rand.NextUInt() + (uint)entityIndexInChunk);
+                var curRand = new Random(rand.NextUInt() + (uint)entityIndexInChunk);
 
                 transform.Rotation = math.mul(transform.Rotation, quaternion.RotateZ(math.radians(curRand.NextFloat(-emitter.angleSpread,
                     emitter.angleSpread))));

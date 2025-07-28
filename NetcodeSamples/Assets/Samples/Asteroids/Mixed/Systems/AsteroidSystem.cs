@@ -1,13 +1,12 @@
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Transforms;
-using Unity.NetCode;
 using Unity.Collections;
 using Unity.Burst;
 
 namespace Asteroids.Mixed
 {
-    [UpdateInGroup(typeof(PredictedSimulationSystemGroup))]
+    [UpdateInGroup(typeof(SimulationSystemGroup))]
     [BurstCompile]
     public partial struct AsteroidSystem : ISystem
     {
@@ -19,8 +18,8 @@ namespace Asteroids.Mixed
                 .WithNone<StaticAsteroid>();
             state.RequireForUpdate(state.GetEntityQuery(builder));
         }
-        [BurstCompile]
-        [WithAll(typeof(Simulate), typeof(AsteroidTagComponentData))]
+
+        [WithAll(typeof(Simulate), typeof(AsteroidTagComponentData), typeof(DynamicAsteroidTag))]
         [WithNone(typeof(StaticAsteroid))]
         partial struct AsteroidJob : IJobEntity
         {
@@ -31,8 +30,8 @@ namespace Asteroids.Mixed
                 transform.Position.xy += velocity.Value * deltaTime;
                 transform.Rotation = math.mul(transform.Rotation, quaternion.RotateZ(math.radians(100 * deltaTime)));
             }
-
         }
+
         [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {

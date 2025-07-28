@@ -149,6 +149,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b8d6158223b38164583a4c49c2abac70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  levelData:
+    levelWidth: 2048
+    levelHeight: 2048
+    shipForwardForce: 50
+    shipRotationRate: 100
+    bulletVelocity: 500
+    bulletRofCooldownTicks: 10
+    asteroidVelocity: 10
+    numAsteroids: 200
+    _asteroidsDamageShips: 1
+    _shipPvP: 1
+    _asteroidsDestroyedOnShipContact: 0
+    _bulletsDestroyedOnContact: 1
+    relevancyRadius: 1200
+    _staticAsteroidOptimization: 0
+    _enableGhostImportanceScaling: 0
+    _useBatchScalingFunction: 0
 --- !u!4 &83804743
 Transform:
   m_ObjectHideFlags: 0
@@ -176,6 +193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e385a095bf0ca4c1d9ae8d0270ec0649, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  predictionRadius: 400
+  predictionRadiusMargin: 50
 --- !u!1 &204771218
 GameObject:
   m_ObjectHideFlags: 0

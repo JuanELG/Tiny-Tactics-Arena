@@ -2,6 +2,7 @@ using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.NetCode.Samples.Common;
 using Unity.Transforms;
 
 [UpdateInGroup(typeof(InitializationSystemGroup))]
@@ -60,7 +61,7 @@ public partial struct SinglePlayerSpawnSystem : ISystem
                 asteroidDynamicPrefab != Entity.Null ? asteroidDynamicPrefab : asteroidStaticPrefab).radius;
         }
 
-        if (shipQuery.IsEmpty && UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space))
+        if (shipQuery.IsEmpty && (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space) || TouchInput.GetKey(TouchInput.KeyCode.Space)))
         {
             var shipScale = entityManager.GetComponentData<LocalTransform>(shipPrefab).Scale;
             float shipPadding = shipRadius + 3f;

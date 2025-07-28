@@ -7,12 +7,12 @@ public partial struct LevelVisualSetupSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<LevelComponent>();
+        state.RequireForUpdate<GameSettings>();
     }
 
     public void OnUpdate(ref SystemState state)
     {
-        var level = SystemAPI.GetSingleton<LevelComponent>();
+        var level = SystemAPI.GetSingleton<GameSettings>().levelData;
 
         foreach (var (trans, scaleMatrix, border) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<PostTransformMatrix>, RefRO<LevelBorder>>())
         {

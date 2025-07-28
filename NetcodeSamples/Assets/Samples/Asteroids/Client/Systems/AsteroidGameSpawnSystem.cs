@@ -94,23 +94,24 @@ public partial struct SinglePlayerSpawnSystem : ISystem
         var asteroidPrefab = asteroidDynamicPrefab != Entity.Null ? asteroidDynamicPrefab : asteroidStaticPrefab;
         bool useDynamicAsteroids = asteroidDynamicPrefab != Entity.Null;
 
-        var shipPos = new float3(level.levelWidth / 2f, level.levelHeight / 2f, 0f);
+        var shipPosition = new float3(level.levelWidth / 2f, level.levelHeight / 2f, 0f);
         var shipRotInit = quaternion.RotateZ(math.radians(90f));
         var shipScaleInit = entityManager.GetComponentData<LocalTransform>(shipPrefab).Scale;
 
         for (int i = 0; i < level.numAsteroids; i++)
         {
             bool found = false;
-            float3 asteroidPos = default;
+            float3 asteroidPosition = default;
+            float third = level.levelHeight / 3f;
 
             for (int attempt = 0; attempt < 5; attempt++)
             {
-                asteroidPos = new float3(
+                asteroidPosition = new float3(
                     randomValue.NextFloat(padding, level.levelWidth - padding),
-                    randomValue.NextFloat(padding, level.levelHeight - padding),
+                    randomValue.NextFloat(third + padding, (2f * third) - padding),
                     0f);
 
-                if (math.distancesq(asteroidPos, shipPos) > minDistanceSqr)
+                if (math.distancesq(asteroidPosition, shipPosition) > minDistanceSqr)
                 {
                     found = true;
                     break;
@@ -122,9 +123,9 @@ public partial struct SinglePlayerSpawnSystem : ISystem
 
             float angle = randomValue.NextFloat(0f, 360f);
             float2 velocity = math.mul(quaternion.RotateZ(math.radians(angle)), new float3(0, level.asteroidVelocity, 0)).xy;
-            var asteroidRot = quaternion.RotateZ(math.radians(angle));
+            var asteroidRotation = quaternion.RotateZ(math.radians(angle));
             var asteroidEntity = ecb.Instantiate(asteroidPrefab);
-            ecb.SetComponent(asteroidEntity, LocalTransform.FromPositionRotationScale(asteroidPos, asteroidRot, asteroidScale));
+            ecb.SetComponent(asteroidEntity, LocalTransform.FromPositionRotationScale(asteroidPosition, asteroidRotation, asteroidScale));
 
             if (useDynamicAsteroids)
             {
@@ -134,7 +135,7 @@ public partial struct SinglePlayerSpawnSystem : ISystem
             {
                 ecb.SetComponent(asteroidEntity, new StaticAsteroid
                 {
-                    InitialPosition = asteroidPos.xy,
+                    InitialPosition = asteroidPosition.xy,
                     InitialVelocity = velocity,
                     InitialAngle = angle,
                     SpawnTime = (float)SystemAPI.Time.ElapsedTime

@@ -8,10 +8,17 @@ using Unity.Rendering;
 [BurstCompile]
 public partial struct ActivateNearbyAsteroidsSystem : ISystem
 {
+    private EntityQuery asteroidQuery;
+
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<ShipTagComponentData>();
         state.RequireForUpdate<ClientSettings>();
+
+        asteroidQuery = state.GetEntityQuery(
+            ComponentType.ReadOnly<AsteroidTagComponentData>(),
+            ComponentType.ReadOnly<LocalTransform>()
+        );
     }
 
     [BurstCompile]
@@ -29,14 +36,8 @@ public partial struct ActivateNearbyAsteroidsSystem : ISystem
         ).Position;
 
         var ecb = new EntityCommandBuffer(Allocator.Temp);
-
-        var query = state.GetEntityQuery(
-            ComponentType.ReadOnly<AsteroidTagComponentData>(),
-            ComponentType.ReadOnly<LocalTransform>()
-        );
-
-        var entities = query.ToEntityArray(Allocator.Temp);
-        var transforms = query.ToComponentDataArray<LocalTransform>(Allocator.Temp);
+        var entities = asteroidQuery.ToEntityArray(Allocator.Temp);
+        var transforms = asteroidQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
 
         for (int i = 0; i < entities.Length; i++)
         {

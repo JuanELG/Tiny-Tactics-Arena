@@ -22,17 +22,18 @@ public partial struct SinglePlayerCollisionSystem : ISystem
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        asteroidQuery = state.GetEntityQuery(
-            ComponentType.ReadOnly<AsteroidTagComponentData>(),
-            ComponentType.ReadOnly<DynamicAsteroidTag>(),
-            ComponentType.ReadOnly<LocalTransform>(),
-            ComponentType.ReadOnly<CollisionSphereComponent>()); bulletQuery = state.GetEntityQuery(ComponentType.ReadOnly<BulletTagComponent>(), ComponentType.ReadOnly<LocalTransform>(), ComponentType.ReadOnly<CollisionSphereComponent>(), ComponentType.ReadOnly<BulletAgeComponent>());
-        shipQuery = state.GetEntityQuery(
-            ComponentType.ReadOnly<ShipTagComponentData>(), 
-            ComponentType.ReadOnly<LocalTransform>(), 
-            ComponentType.ReadOnly<CollisionSphereComponent>());
-
-        settingsQuery = state.GetEntityQuery(ComponentType.ReadOnly<GameSettings>());
+        asteroidQuery = new EntityQueryBuilder(Allocator.Temp)
+        .WithAll<AsteroidTagComponentData, DynamicAsteroidTag, LocalTransform, CollisionSphereComponent>()
+        .Build(ref state);
+        bulletQuery = new EntityQueryBuilder(Allocator.Temp)
+        .WithAll<BulletTagComponent, LocalTransform, CollisionSphereComponent, BulletAgeComponent>()
+        .Build(ref state);
+        shipQuery = new EntityQueryBuilder(Allocator.Temp)
+        .WithAll<ShipTagComponentData, LocalTransform, CollisionSphereComponent>()
+        .Build(ref state);
+        settingsQuery = new EntityQueryBuilder(Allocator.Temp)
+        .WithAll<GameSettings>()
+        .Build(ref state);
 
         state.RequireForUpdate(settingsQuery);
         state.RequireForUpdate<AsteroidScore>();

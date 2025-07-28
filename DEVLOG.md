@@ -15,16 +15,28 @@
 
 ## 2. Change Log
 
-| Change #  | Task                                    | Commit / Artifact   	      |
-| --------- | --------------------------------------- | ----------------------------- |
-|    1      | START: Fork Asteroids repo              | 		              |
-|    2      | Add initial DEVLOG.md	              | db350075		      |
-|    3      | Add multiplayer playmode package        | b2fd2250		      |
+| Change #  | Task                                                       | Commit / Artifact   	      	 |
+| --------- | ---------------------------------------------------------- | ----------------------------- |
+|    1      | START: Fork Asteroids repo              			 | 		              	 |
+|    2      | Add initial DEVLOG.md	              			 | db350075		      	 |
+|    3      | Add multiplayer playmode package        			 | b2fd2250		      	 |
+|    4      | WIP: Implement player zones(AI usage)      			 | 928f41df		      	 |
+|    5      | Remove Netcode for entities		      			 | 4715e29e		      	 |
+|    6      | Remove netcode samples		      			 | b4527fb7		      	 |
+|    7      | Remove multiplayer scripts(AI usage)      			 | 3e58c38a		      	 |
+|    8      | Refactor useful scripts for single-player(AI usage)      	 | 2ab42bcb		      	 |
+|    9      | Update level settings and input handling		      	 | 5e01542e		      	 |
 ---
 
 ## 3. Key Design Decisions
 
-*  
+* NetCode removed for rapid prototyping: To accelerate development, NetCode was removed and multiplayer-dependent systems were refactored to work in single player mode.
+This simplified the architecture for the challenge while keeping it extensible for future multiplayer reintegration.
+* Separated gameplay logic per mode (SinglePlayer vs Multiplayer) using Assembly Definitions and defineConstraints, ensuring exclusive system compilation and execution per scene or platform
+* Applied ECS architectural patterns:
+     * Composition of behavior via components
+  * Modularization by feature-based folder structure
+  * Extraction of pure Burst-safe logic to reusable static helpers
 ---
 
 ## 4. AI Usage
@@ -32,14 +44,19 @@
 * **ChatGPT:**
 
   * In-depth investigation of Unity DOTS and questions and answers from the basics
+  * Deep refactoring of the scripts used for multiplayer, allowing  their use in single player mode.
+     * Use of the expert panel strategy through prompts to receive better answers and compare ideas regarding architecture, design, and DOTS concepts.
 
 * **GitHub Copilot:**
 
   * Generation of commit messages and necessary documentation for the project
+  * Quickly and efficiently autocomplete code
 
 * **AI Leverage:**
 
   * ChatGPT helped resolve questions and deep research on DOTS in 3 hours (vs. ~8 hours of searching through documents and videos).
+  * ChatGPT helped refactor and understand multiplayer scripts in 10 hours. (vs. ~48 hours of understanding and manual coding)
+  * ChatGPT helped find better design solutions to apply to the project code in 3 hours. (vs. ~12 researching the application of design and architecture patterns for DOTS in documentation)
 ---
 
 ## 5. Optimization and Performance Evidence
@@ -78,7 +95,9 @@
 
 ## 7. Next Steps / Pending Improvements
 
-* 
+* Extend shared logic extraction to more systems (e.g. collision, scoring)
+* Add test coverage for pure logic modules
+* Refactor all systems to consistently follow new mode-based architecture (e.g. SinglePlayerAsteroidSystem, MultiplayerAsteroidSystem using shared logic)
 ---
 
 > **Note:** Include commit references and captures in `/Docs/` folder for the live demo.

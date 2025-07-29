@@ -16,13 +16,13 @@ public partial struct PlayerZonesGeneratorSystem : ISystem
     public void OnUpdate(ref SystemState state)
     {
         var level = SystemAPI.GetSingleton<GameSettings>().levelData;
-
         float third = level.levelHeight / 3f;
 
-        foreach (var (side, trans, scaleMatrix) in SystemAPI.Query<
+        foreach (var (side, trans, scaleMatrix, box) in SystemAPI.Query<
                      RefRO<VisualSideComponent>,
                      RefRW<LocalTransform>,
-                     RefRW<PostTransformMatrix>>())
+                     RefRW<PostTransformMatrix>,
+                     RefRW<CollisionBoxComponent>>())
         {
             float3 scale = new float3(level.levelWidth, 5f, 1f);
             float3 pos = float3.zero;
@@ -40,6 +40,7 @@ public partial struct PlayerZonesGeneratorSystem : ISystem
 
             trans.ValueRW.Position = pos;
             scaleMatrix.ValueRW.Value = float4x4.Scale(scale);
+            box.ValueRW.halfExtents = scale.xy * 0.5f;
         }
     }
 }

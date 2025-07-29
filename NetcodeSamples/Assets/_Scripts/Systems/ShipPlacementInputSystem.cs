@@ -33,12 +33,10 @@ public partial struct ShipPlacementInputSystem : ISystem
         if (!inputPressed)
             return;
 
-        float3 spawnPos = GetClickPosition();
-
-        if (float.IsNaN(spawnPos.x))
-            return;
-
         var level = SystemAPI.GetSingleton<GameSettings>().levelData;
+        if (!TryGetClickPosition(out float3 spawnPosition, level))
+            return;
+        
         var spawner = SystemAPI.GetSingleton<AsteroidsSpawner>();
         var shipPrefab = spawner.Ship;
         var shipScale = state.EntityManager.GetComponentData<LocalTransform>(shipPrefab).Scale;
@@ -47,7 +45,7 @@ public partial struct ShipPlacementInputSystem : ISystem
         var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
 
         var ship = ecb.Instantiate(shipPrefab);
-        ecb.SetComponent(ship, LocalTransform.FromPositionRotationScale(spawnPos, rotation, shipScale));
+        ecb.SetComponent(ship, LocalTransform.FromPositionRotationScale(spawnPosition, rotation, shipScale));
 
         foreach (var entity in pendingPlacementQuery.ToEntityArray(Unity.Collections.Allocator.Temp))
             ecb.DestroyEntity(entity);
@@ -56,22 +54,40 @@ public partial struct ShipPlacementInputSystem : ISystem
         ecb.Dispose();
     }
 
-    private float3 GetClickPosition()
+    private bool TryGetClickPosition(out float3 position, in LevelComponent level)
     {
 #if UNITY_EDITOR || UNITY_STANDALONE
         if (!Input.GetMouseButtonDown(0))
-            return float3.zero;
-
-        Vector3 mousePos = Input.mousePosition;
+        {
+            position = default;
+            return false;
+        }
+        Vector3 mousePosition = Input.mousePosition;
 #elif UNITY_ANDROID || UNITY_IOS
-        if (Input.touchCount == 0)
-            return float3.zero;
-
-        Vector3 mousePos = Input.GetTouch(0).position;
+    if (Input.touchCount == 0)
+    {
+        position = default;
+        return false;
+    }
+    Vector3 mousePos = Input.GetTouch(0).position;
 #else
-        return float3.zero;
+    position = default;
+    return false;
 #endif
-        var world = Camera.main.ScreenToWorldPoint(mousePos);
-        return new float3(world.x, world.y, 0f);
+
+        var world = Camera.main.ScreenToWorldPoint(mousePosition);
+        float3 worldPosition = new float3(world.x, world.y, 0f);
+
+        bool isInside = worldPosition.x >= 0 && worldPosition.x <= level.levelWidth &&
+                        worldPosition.y >= 0 && worldPosition.y <= level.levelHeight;
+
+        if (!isInside)
+        {
+            position = default;
+            return false;
+        }
+
+        position = worldPosition;
+        return true;
     }
 }

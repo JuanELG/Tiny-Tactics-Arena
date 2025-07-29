@@ -61,25 +61,6 @@ public partial struct SinglePlayerSpawnSystem : ISystem
                 asteroidDynamicPrefab != Entity.Null ? asteroidDynamicPrefab : asteroidStaticPrefab).radius;
         }
 
-        if (shipQuery.IsEmpty && (UnityEngine.Input.GetKeyDown(UnityEngine.KeyCode.Space) || TouchInput.GetKey(TouchInput.KeyCode.Space)))
-        {
-            var shipScale = entityManager.GetComponentData<LocalTransform>(shipPrefab).Scale;
-            float shipPadding = shipRadius + 3f;
-
-            var shipRandomValue = random.Value;
-
-            float3 spawnPosition = new float3(
-                shipRandomValue.NextFloat(shipPadding, level.levelWidth - shipPadding),
-                shipRandomValue.NextFloat(shipPadding, level.levelHeight - shipPadding),
-                0f);
-
-            random.Value = shipRandomValue;
-
-            var shipRotation = quaternion.RotateZ(math.radians(90f));
-            var shipEntity = ecb.Instantiate(shipPrefab);
-            ecb.SetComponent(shipEntity, LocalTransform.FromPositionRotationScale(spawnPosition, shipRotation, shipScale));
-        }
-
         if (initialSpawnDone)
             return;
 

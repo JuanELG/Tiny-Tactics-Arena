@@ -18,6 +18,7 @@ public partial struct SinglePlayerCollisionSystem : ISystem
     private EntityQuery bulletQuery;
     private EntityQuery shipQuery;
     private EntityQuery settingsQuery;
+    private EntityQuery killBoxQuery;
 
     [BurstCompile]
     public void OnCreate(ref SystemState state)
@@ -34,6 +35,9 @@ public partial struct SinglePlayerCollisionSystem : ISystem
         settingsQuery = new EntityQueryBuilder(Allocator.Temp)
         .WithAll<GameSettings>()
         .Build(ref state);
+        killBoxQuery = new EntityQueryBuilder(Allocator.Temp)
+            .WithAll<VisualSideComponent, LocalTransform, CollisionBoxComponent>()
+            .Build(ref state);
 
         state.RequireForUpdate(settingsQuery);
         state.RequireForUpdate<AsteroidScore>();
@@ -45,6 +49,9 @@ public partial struct SinglePlayerCollisionSystem : ISystem
         var asteroidChunks = asteroidQuery.ToArchetypeChunkListAsync(state.WorldUpdateAllocator, out var asteroidHandle);
         var bulletChunks = bulletQuery.ToArchetypeChunkListAsync(state.WorldUpdateAllocator, out var bulletHandle);
         var shipChunks = shipQuery.ToArchetypeChunkListAsync(state.WorldUpdateAllocator, out var shipHandle);
+        var zoneChunks = killBoxQuery.ToArchetypeChunkListAsync(state.WorldUpdateAllocator, out var zoneHandle);
+        var killBoxes = killBoxQuery.ToComponentDataArray<CollisionBoxComponent>(Allocator.Temp);
+        var killBoxTransforms = killBoxQuery.ToComponentDataArray<LocalTransform>(Allocator.Temp);
 
         var level = SystemAPI.GetSingleton<GameSettings>().levelData;
         var asteroidScoreEntity = SystemAPI.GetSingletonEntity<AsteroidScore>();
@@ -55,11 +62,12 @@ public partial struct SinglePlayerCollisionSystem : ISystem
         var bulletOwnerHandle = state.GetComponentTypeHandle<BulletOwner>(true);
         var entityHandle = state.GetEntityTypeHandle();
 
-        var handles = new NativeArray<JobHandle>(4, Allocator.Temp);
+        var handles = new NativeArray<JobHandle>(5, Allocator.Temp);
         handles[0] = state.Dependency;
         handles[1] = asteroidHandle;
         handles[2] = bulletHandle;
         handles[3] = shipHandle;
+        handles[4] = zoneHandle;
         state.Dependency = JobHandle.CombineDependencies(handles);
         handles.Dispose();
 
@@ -81,7 +89,7 @@ public partial struct SinglePlayerCollisionSystem : ISystem
             entityHandle = entityHandle
         };
         var asteroidJobHandle = asteroidJob.ScheduleParallel(asteroidQuery, state.Dependency);
-
+        var velocityLookup = state.GetComponentLookup<Velocity>(true);
         var shipJob = new DestroyShipsJob
         {
             bulletChunks = bulletChunks,
@@ -91,7 +99,10 @@ public partial struct SinglePlayerCollisionSystem : ISystem
             sphereHandle = sphereHandle,
             transformHandle = transformHandle,
             entityHandle = entityHandle,
-            ownerHandle = bulletOwnerHandle
+            ownerHandle = bulletOwnerHandle,
+            velocityLookup = velocityLookup,
+            zoneChunks = zoneChunks,
+            boxHandle = state.GetComponentTypeHandle<CollisionBoxComponent>(true)
         };
         var shipJobHandle = shipJob.ScheduleParallel(shipQuery, asteroidJobHandle);
 
@@ -175,6 +186,10 @@ public partial struct SinglePlayerCollisionSystem : ISystem
         [ReadOnly] public ComponentTypeHandle<LocalTransform> transformHandle;
         [ReadOnly] public EntityTypeHandle entityHandle;
         [ReadOnly] public ComponentTypeHandle<BulletOwner> ownerHandle;
+        [ReadOnly] public ComponentLookup<Velocity> velocityLookup;
+
+        [ReadOnly] public NativeList<ArchetypeChunk> zoneChunks;
+        [ReadOnly] public ComponentTypeHandle<CollisionBoxComponent> boxHandle;
 
         public void Execute(in ArchetypeChunk chunk, int chunkIndex, bool _, in v128 __)
         {
@@ -189,12 +204,35 @@ public partial struct SinglePlayerCollisionSystem : ISystem
 
                 if (!IsInsideBounds(shipPosition, shipRadius, level))
                 {
+                    var shipVelocity = GetVelocity(velocityLookup, shipEntities[i]);
+                    bool bounced = false;
+
+                    if (shipPosition.x - shipRadius < 0f || shipPosition.x + shipRadius > level.levelWidth)
+                    {
+                        shipVelocity.x *= -1f;
+                        bounced = true;
+                    }
+                    if (shipPosition.y - shipRadius < 0f || shipPosition.y + shipRadius > level.levelHeight)
+                    {
+                        shipVelocity.y *= -1f;
+                        bounced = true;
+                    }
+
+                    if (bounced)
+                        commandBuffer.SetComponent(chunkIndex, shipEntities[i], new Velocity { Value = shipVelocity });
+                }
+
+                if (CheckCollisionWithZones(shipPosition, shipRadius))
+                {
                     commandBuffer.DestroyEntity(chunkIndex, shipEntities[i]);
                     continue;
                 }
 
-                if (CheckCollision(bulletChunks, shipPosition, shipRadius, shipEntities[i]) || CheckCollision(asteroidChunks, shipPosition, shipRadius, shipEntities[i]))
+                if (CheckCollision(bulletChunks, shipPosition, shipRadius, shipEntities[i]) ||
+                    CheckCollision(asteroidChunks, shipPosition, shipRadius, shipEntities[i]))
+                {
                     commandBuffer.DestroyEntity(chunkIndex, shipEntities[i]);
+                }
             }
         }
 
@@ -219,6 +257,32 @@ public partial struct SinglePlayerCollisionSystem : ISystem
                 }
             }
             return false;
+        }
+
+        private bool CheckCollisionWithZones(float2 position, float radius)
+        {
+            foreach (var chunk in zoneChunks)
+            {
+                var boxes = chunk.GetNativeArray(ref boxHandle);
+                var transforms = chunk.GetNativeArray(ref transformHandle);
+
+                for (int i = 0; i < boxes.Length; i++)
+                {
+                    var center = transforms[i].Position.xy;
+                    var halfExtents = boxes[i].halfExtents;
+
+                    float2 delta = math.abs(position - center);
+                    if (delta.x < halfExtents.x + radius && delta.y < halfExtents.y + radius)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private float2 GetVelocity(ComponentLookup<Velocity> lookup, Entity entity)
+        {
+            return lookup.HasComponent(entity) ? lookup[entity].Value : float2.zero;
         }
     }
 

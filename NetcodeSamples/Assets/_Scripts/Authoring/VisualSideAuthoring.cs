@@ -1,4 +1,5 @@
 using Unity.Entities;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class VisualSideAuthoring : MonoBehaviour
@@ -12,9 +13,7 @@ public class VisualSideBaker : Baker<VisualSideAuthoring>
     {
         var entity = GetEntity(TransformUsageFlags.Dynamic);
 
-        AddComponent(entity, new VisualSideComponent
-        {
-            Side = authoring.Side
-        });
+        AddComponent(entity, new VisualSideComponent { Side = authoring.Side });
+        AddComponent(entity, new CollisionBoxComponent { halfExtents = float2.zero });
     }
 }

@@ -71,9 +71,6 @@ public partial struct ShipPlacementInputSystem : ISystem
         foreach (var entity in pendingPlacementQuery.ToEntityArray(Unity.Collections.Allocator.Temp))
             ecb.DestroyEntity(entity);
 
-        var placementEntity = ecb.CreateEntity();
-        ecb.AddComponent(placementEntity, new PendingAsteroidPlacement { Remaining = 3 });
-
         ecb.Playback(state.EntityManager);
         ecb.Dispose();
     }

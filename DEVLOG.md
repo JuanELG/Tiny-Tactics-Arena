@@ -76,15 +76,25 @@ This simplified the architecture for the challenge while keeping it extensible f
 * **Tool:** Unity Profiler (Android Device)
 * **Initial metrics:**
 
-  * 
+  * CPU Frame Time: ~33.5 ms (≈30 FPS)
+     * Main bottleneck: WaitForLastPresent caused by VSync
+  * GC Alloc per frame: negligible (only 70 B occasionally)
+     * Memory usage: ~670 MB total, no significant spikes
 
 * **Actions:**
 
-  1. 
+  1. Disabled VSync to prevent frame waiting
+  2. Forced target frame rate to 60 FPS
+  3. Disabled unnecessary render features
+  4. Set Universal Render Pipeline settings for mobile
+
 * **Result:**
 
-  * 
-  * 
+  * CPU Frame Time: dropped from ~33 ms to ~16.6 ms, achieving a stable 60 FPS
+  * Main Thread Idle Time: increased, confirming system headroom
+  * Memory usage: remains consistent (~0.67 GB)
+     * GPU workload stabilized (based on profiler bars)
+     * Rendering: reduced draw overhead confirmed in Frame Debugger
 * **Screenshots:** 
 ---
 

@@ -1,18 +1,14 @@
-using Unity.Burst;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.NetCode.Samples.Common;
 using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateAfter(typeof(GamePhaseSystem))]
-[BurstCompile]
 public partial struct ShipPlacementInputSystem : ISystem
 {
     private EntityQuery pendingPlacementQuery;
 
-    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         pendingPlacementQuery = state.GetEntityQuery(ComponentType.ReadOnly<PendingShipPlacement>());
@@ -21,14 +17,14 @@ public partial struct ShipPlacementInputSystem : ISystem
         state.RequireForUpdate<AsteroidsSpawner>();
     }
 
-    [BurstCompile]
+    
     public void OnUpdate(ref SystemState state)
     {
         var phase = SystemAPI.GetSingleton<GamePhaseComponent>();
         if (phase.Value != GamePhase.ShipPositioning || pendingPlacementQuery.IsEmpty)
             return;
 
-        bool inputPressed = Input.GetMouseButtonDown(0) || TouchInput.GetKey(TouchInput.KeyCode.Space);
+        bool inputPressed = Input.GetMouseButtonDown(0) || Input.touchCount > 0;
         if (!inputPressed)
             return;
 

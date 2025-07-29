@@ -36,7 +36,7 @@ public partial struct GamePhaseSystem : ISystem
         switch (phase.Value)
         {
             case GamePhase.ShipPositioning:
-                if (!state.EntityManager.CreateEntityQuery(typeof(PendingShipPlacement)).IsEmpty)
+                if (!SystemAPI.QueryBuilder().WithAll<PendingShipPlacement>().Build().IsEmpty)
                     break;
 
                 phase.Value = GamePhase.AsteroidsPositioning;
@@ -49,7 +49,7 @@ public partial struct GamePhaseSystem : ISystem
                 break;
 
             case GamePhase.AsteroidsPositioning:
-                if (!state.EntityManager.CreateEntityQuery(typeof(PendingAsteroidPlacement)).IsEmpty)
+                if (!SystemAPI.QueryBuilder().WithAll<PendingAsteroidPlacement>().Build().IsEmpty)
                     break;
 
                 phase.Value = GamePhase.Battle;

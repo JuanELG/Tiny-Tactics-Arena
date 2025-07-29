@@ -17,17 +17,10 @@ public partial struct ConvertAsteroidsToDynamicSystem : ISystem
     {
         state.RequireForUpdate<GamePhaseComponent>();
 
-        asteroidQuery = state.GetEntityQuery(new EntityQueryDesc
-        {
-            All = new ComponentType[] {
-                typeof(AsteroidTagComponentData),
-                typeof(LocalTransform)
-            },
-            None = new ComponentType[] {
-                typeof(DynamicAsteroidTag),
-                typeof(PlayerPlacedAsteroidTag)
-            }
-        });
+        asteroidQuery = SystemAPI.QueryBuilder()
+        .WithAll<AsteroidTagComponentData, LocalTransform>()
+        .WithNone<DynamicAsteroidTag, PlayerPlacedAsteroidTag>()
+        .Build();
     }
 
     [BurstCompile]

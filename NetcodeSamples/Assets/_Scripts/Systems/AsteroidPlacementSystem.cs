@@ -1,17 +1,12 @@
-using Unity.Burst;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.NetCode.Samples.Common;
 using Unity.Transforms;
 using UnityEngine;
-using static UnityEngine.EventSystems.EventTrigger;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[BurstCompile]
 public partial struct AsteroidPlacementSystem : ISystem
 {
-    [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<PendingAsteroidPlacement>();
@@ -20,7 +15,6 @@ public partial struct AsteroidPlacementSystem : ISystem
         state.RequireForUpdate<GamePhaseComponent>();
     }
 
-    [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var phase = SystemAPI.GetSingleton<GamePhaseComponent>();
@@ -31,7 +25,7 @@ public partial struct AsteroidPlacementSystem : ISystem
         if (hasPendingShipPlacement)
             return;
 
-        bool inputPressed = Input.GetMouseButtonDown(0) || TouchInput.GetKey(TouchInput.KeyCode.Space);
+        bool inputPressed = Input.GetMouseButtonDown(0) || Input.touchCount > 0;
         if (!inputPressed)
             return;
 

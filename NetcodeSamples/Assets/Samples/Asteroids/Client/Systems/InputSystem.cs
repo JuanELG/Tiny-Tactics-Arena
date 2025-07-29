@@ -1,31 +1,29 @@
-using Unity.Burst;
 using Unity.Entities;
-using Unity.NetCode.Samples.Common;
-using Unity.Transforms;
 using UnityEngine;
+using Unity.NetCode.Samples.Common;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-public partial struct PlayerInputSystem : ISystem
+public partial class PlayerInputSystem : SystemBase
 {
-    [BurstCompile]
-    public void OnUpdate(ref SystemState state)
+    protected override void OnUpdate()
     {
-        float left = Input.GetKey("left") || TouchInput.GetKey(TouchInput.KeyCode.Left) ? 1f : 0f;
-        float right = Input.GetKey("right") || TouchInput.GetKey(TouchInput.KeyCode.Right) ? 1f : 0f;
-        float thrust = Input.GetKey("up") || TouchInput.GetKey(TouchInput.KeyCode.Up) ? 1f : 0f;
-        float shoot = Input.GetKey("space") || TouchInput.GetKey(TouchInput.KeyCode.Space) ? 1f : 0f;
+        float left = (Input.GetKey("left") || TouchInput.GetKey(TouchInput.KeyCode.Left)) ? 1f : 0f;
+        float right = (Input.GetKey("right") || TouchInput.GetKey(TouchInput.KeyCode.Right)) ? 1f : 0f;
+        float thrust = (Input.GetKey("up") || TouchInput.GetKey(TouchInput.KeyCode.Up)) ? 1f : 0f;
+        float shoot = (Input.GetKey("space") || TouchInput.GetKey(TouchInput.KeyCode.Space)) ? 1f : 0f;
 
-        float deltaTime = SystemAPI.Time.DeltaTime;
-
-        foreach (var (transform, input, entity) in SystemAPI.Query<RefRW<LocalTransform>, RefRW<ShipInputComponent>>().WithEntityAccess())
-        {
-            input.ValueRW.left = left;
-            input.ValueRW.right = right;
-            input.ValueRW.thrust = thrust;
-            input.ValueRW.shoot = shoot;
-        }
+        Entities
+            .WithName("ApplyPlayerInput")
+            .ForEach((ref ShipInputComponent input) =>
+            {
+                input.left = left;
+                input.right = right;
+                input.thrust = thrust;
+                input.shoot = shoot;
+            }).Run();
     }
 }
+
 
 
 public struct ShipInputComponent : IComponentData

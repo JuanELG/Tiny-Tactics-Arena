@@ -248,6 +248,8 @@ public partial struct SinglePlayerCollisionSystem : ISystem
                 if (CheckCollisionWithZones(shipPosition, shipRadius))
                 {
                     commandBuffer.DestroyEntity(chunkIndex, shipEntities[i]);
+                    var entity = commandBuffer.CreateEntity(chunkIndex);
+                    commandBuffer.AddComponent(chunkIndex, entity, new PlayerDestroyedTag());
                     continue;
                 }
 
@@ -255,6 +257,8 @@ public partial struct SinglePlayerCollisionSystem : ISystem
                     CheckCollision(asteroidChunks, shipPosition, shipRadius, shipEntities[i]))
                 {
                     commandBuffer.DestroyEntity(chunkIndex, shipEntities[i]);
+                    var entity = commandBuffer.CreateEntity(chunkIndex);
+                    commandBuffer.AddComponent(chunkIndex, entity, new PlayerDestroyedTag());
                 }
             }
         }

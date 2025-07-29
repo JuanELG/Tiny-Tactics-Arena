@@ -30,7 +30,12 @@
 |    11     | Adjust asteroid and player zone spawn positions(AI usage)	 | c879ab34		      	 |
 |    12     | Game phase system and ship deployment with touch(AI usage) | 8779738d		      	 |
 |    13     | Collision zones and improve ship placement logic(AI usage) | 3e4e0a28		      	 |
-|    14     | asteroid placement phase, refactor placement...(AI usage) 	 | a6db8499		      	 |
+|    14     | asteroid placement phase, refactor placement...(AI usage)  | a6db8499		      	 |
+|    15     | Positioned asteroids don't switch to dynamic...(AI usage)	 | f4f2f18c		      	 |
+|    16     | Refactor input systems and update queries...(AI usage)  	 | f02f619c		      	 |
+|    17     | Changes in configuration for performance...(AI usage)  	 | 292026b3		      	 |
+|    18     | Fix positioning phase timer  				 | cac00bd8		      	 |
+
 ---
 
 ## 3. Key Design Decisions
@@ -95,7 +100,7 @@ This simplified the architecture for the challenge while keeping it extensible f
   * Memory usage: remains consistent (~0.67 GB)
      * GPU workload stabilized (based on profiler bars)
      * Rendering: reduced draw overhead confirmed in Frame Debugger
-* **Screenshots:** 
+* **Screenshots:** captures in `/Docs/` folder for the live demo.
 ---
 
 ## 6. Trade-offs and Reflections
@@ -117,9 +122,13 @@ This simplified the architecture for the challenge while keeping it extensible f
 
 ## 7. Next Steps / Pending Improvements
 
-* Extend shared logic extraction to more systems (e.g. collision, scoring)
-* Add test coverage for pure logic modules
-* Refactor all systems to consistently follow new mode-based architecture (e.g. SinglePlayerAsteroidSystem, MultiplayerAsteroidSystem using shared logic)
+* Extend shared logic extraction to more systems (e.g. collision, scoring).
+* Add test coverage for pure logic modules,
+* Refactor all systems to consistently follow new mode-based architecture (e.g. SinglePlayerAsteroidSystem, MultiplayerAsteroidSystem using shared logic).
+* Implement UI for selecting ships and asteroids to be positioned during the positioning phase.
+* Reset all DOTS world on player lose.
+* Implement FTUE system.
+* Add some cool destroy particles.
+* Add some cool music and sound effects.
+* Implement AI positioning and battle behavior.
 ---
-
-> **Note:** Include commit references and captures in `/Docs/` folder for the live demo.

@@ -1,4 +1,5 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.NetCode.Samples.Common;
@@ -6,26 +7,27 @@ using Unity.Transforms;
 using UnityEngine;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(GamePhaseSystem))]
 [BurstCompile]
-public partial struct ShipPlacementInputSystem : ISystem
+public partial struct AsteroidPlacementSystem : ISystem
 {
-    private EntityQuery pendingPlacementQuery;
-
     [BurstCompile]
     public void OnCreate(ref SystemState state)
     {
-        pendingPlacementQuery = state.GetEntityQuery(ComponentType.ReadOnly<PendingShipPlacement>());
-        state.RequireForUpdate<GamePhaseComponent>();
+        state.RequireForUpdate<PendingAsteroidPlacement>();
         state.RequireForUpdate<GameSettings>();
         state.RequireForUpdate<AsteroidsSpawner>();
+        state.RequireForUpdate<GamePhaseComponent>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
         var phase = SystemAPI.GetSingleton<GamePhaseComponent>();
-        if (phase.Value != GamePhase.ShipPositioning || pendingPlacementQuery.IsEmpty)
+        if (phase.Value != GamePhase.AsteroidsPositioning)
+            return;
+
+        var hasPendingShipPlacement = state.GetEntityQuery(ComponentType.ReadOnly<PendingShipPlacement>()).CalculateEntityCount() > 0;
+        if (hasPendingShipPlacement)
             return;
 
         bool inputPressed = Input.GetMouseButtonDown(0) || TouchInput.GetKey(TouchInput.KeyCode.Space);
@@ -64,19 +66,37 @@ public partial struct ShipPlacementInputSystem : ISystem
             return;
 
         var spawner = SystemAPI.GetSingleton<AsteroidsSpawner>();
-        var shipPrefab = spawner.Ship;
-        var shipScale = state.EntityManager.GetComponentData<LocalTransform>(shipPrefab).Scale;
-        var rotation = quaternion.RotateZ(math.radians(90f));
-        var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+        var prefab = spawner.StaticAsteroid;
+        var scale = state.EntityManager.GetComponentData<LocalTransform>(prefab).Scale;
+        var rotation = quaternion.RotateZ(math.radians(UnityEngine.Random.Range(0f, 360f)));
 
-        var ship = ecb.Instantiate(shipPrefab);
-        ecb.SetComponent(ship, LocalTransform.FromPositionRotationScale(spawnPosition, rotation, shipScale));
+        var ecb = new EntityCommandBuffer(Allocator.Temp);
+        var asteroid = ecb.Instantiate(prefab);
 
-        foreach (var entity in pendingPlacementQuery.ToEntityArray(Unity.Collections.Allocator.Temp))
-            ecb.DestroyEntity(entity);
+        ecb.SetComponent(asteroid, LocalTransform.FromPositionRotationScale(spawnPosition, rotation, scale));
 
-        var placementEntity = ecb.CreateEntity();
-        ecb.AddComponent(placementEntity, new PendingAsteroidPlacement { Remaining = 3 });
+        ecb.SetComponent(asteroid, new StaticAsteroid
+        {
+            InitialPosition = spawnPosition.xy,
+            InitialVelocity = float2.zero,
+            InitialAngle = math.degrees(math.atan2(rotation.value.z, rotation.value.w)) * 2f,
+            SpawnTime = (float)SystemAPI.Time.ElapsedTime
+        });
+
+        foreach (var (placement, ent) in SystemAPI.Query<RefRW<PendingAsteroidPlacement>>().WithEntityAccess())
+        {
+            placement.ValueRW.Remaining--;
+            if (placement.ValueRW.Remaining <= 0)
+            {
+                ecb.DestroyEntity(ent);
+
+                var gamePhaseEntity = SystemAPI.GetSingletonEntity<GamePhaseComponent>();
+                var newPhase = SystemAPI.GetComponent<GamePhaseComponent>(gamePhaseEntity);
+                newPhase.Value = GamePhase.Battle;
+                newPhase.Timer = 0;
+                ecb.SetComponent(gamePhaseEntity, newPhase);
+            }
+        }
 
         ecb.Playback(state.EntityManager);
         ecb.Dispose();

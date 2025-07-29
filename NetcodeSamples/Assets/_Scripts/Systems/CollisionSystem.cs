@@ -205,22 +205,45 @@ public partial struct SinglePlayerCollisionSystem : ISystem
                 if (!IsInsideBounds(shipPosition, shipRadius, level))
                 {
                     var shipVelocity = GetVelocity(velocityLookup, shipEntities[i]);
+                    var position = shipPosition;
                     bool bounced = false;
 
-                    if (shipPosition.x - shipRadius < 0f || shipPosition.x + shipRadius > level.levelWidth)
+                    if (position.x - shipRadius < 0f)
                     {
-                        shipVelocity.x *= -1f;
+                        position.x = shipRadius;
+                        shipVelocity.x = math.abs(shipVelocity.x);
                         bounced = true;
                     }
-                    if (shipPosition.y - shipRadius < 0f || shipPosition.y + shipRadius > level.levelHeight)
+                    else if (position.x + shipRadius > level.levelWidth)
                     {
-                        shipVelocity.y *= -1f;
+                        position.x = level.levelWidth - shipRadius;
+                        shipVelocity.x = -math.abs(shipVelocity.x);
+                        bounced = true;
+                    }
+
+                    if (position.y - shipRadius < 0f)
+                    {
+                        position.y = shipRadius;
+                        shipVelocity.y = math.abs(shipVelocity.y);
+                        bounced = true;
+                    }
+                    else if (position.y + shipRadius > level.levelHeight)
+                    {
+                        position.y = level.levelHeight - shipRadius;
+                        shipVelocity.y = -math.abs(shipVelocity.y);
                         bounced = true;
                     }
 
                     if (bounced)
+                    {
                         commandBuffer.SetComponent(chunkIndex, shipEntities[i], new Velocity { Value = shipVelocity });
+
+                        var newTransform = shipTransforms[i];
+                        newTransform.Position.xy = position;
+                        commandBuffer.SetComponent(chunkIndex, shipEntities[i], newTransform);
+                    }
                 }
+
 
                 if (CheckCollisionWithZones(shipPosition, shipRadius))
                 {

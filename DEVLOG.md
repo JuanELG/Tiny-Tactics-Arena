@@ -20,12 +20,16 @@
 |    1      | START: Fork Asteroids repo              			 | 		              	 |
 |    2      | Add initial DEVLOG.md	              			 | db350075		      	 |
 |    3      | Add multiplayer playmode package        			 | b2fd2250		      	 |
-|    4      | WIP: Implement player zones(AI usage)      			 | 928f41df		      	 |
-|    5      | Remove Netcode for entities		      			 | 4715e29e		      	 |
+|    4      | WIP: Implement player zones(AI usage)      		 | 928f41df		      	 |
+|    5      | Remove Netcode for entities		      		 | 4715e29e		      	 |
 |    6      | Remove netcode samples		      			 | b4527fb7		      	 |
-|    7      | Remove multiplayer scripts(AI usage)      			 | 3e58c38a		      	 |
+|    7      | Remove multiplayer scripts(AI usage)      		 | 3e58c38a		      	 |
 |    8      | Refactor useful scripts for single-player(AI usage)      	 | 2ab42bcb		      	 |
-|    9      | Update level settings and input handling		      	 | 5e01542e		      	 |
+|    9      | Update level settings and input handling(AI usage)	 | 5e01542e		      	 |
+|    10     | Refactor Asteroids systems	and update scenes	(AI usage)	 | 6b631512		      	 |
+|    11     | Adjust asteroid and player zone spawn positions(AI usage)	 | c879ab34		      	 |
+|    12     | Game phase system and ship deployment with touch(AI usage)	 | 8779738d		      	 |
+|    13     | Collision zones and improve ship placement logic(AI usage) | 3e4e0a28		      	 |
 ---
 
 ## 3. Key Design Decisions
@@ -34,9 +38,10 @@
 This simplified the architecture for the challenge while keeping it extensible for future multiplayer reintegration.
 * Separated gameplay logic per mode (SinglePlayer vs Multiplayer) using Assembly Definitions and defineConstraints, ensuring exclusive system compilation and execution per scene or platform
 * Applied ECS architectural patterns:
-     * Composition of behavior via components
+  * Composition of behavior via components
   * Modularization by feature-based folder structure
   * Extraction of pure Burst-safe logic to reusable static helpers
+* State machines are used to manage the new phases of the game flow and to have greater control over the functionalities in each of them.
 ---
 
 ## 4. AI Usage
@@ -45,7 +50,9 @@ This simplified the architecture for the challenge while keeping it extensible f
 
   * In-depth investigation of Unity DOTS and questions and answers from the basics
   * Deep refactoring of the scripts used for multiplayer, allowing  their use in single player mode.
-     * Use of the expert panel strategy through prompts to receive better answers and compare ideas regarding architecture, design, and DOTS concepts.
+  * Use of the expert panel strategy through prompts to receive better answers and compare ideas regarding architecture, design, and DOTS concepts.
+  * Bug fixing.
+  * Implementation of new tactics arena features.
 
 * **GitHub Copilot:**
 
@@ -55,8 +62,10 @@ This simplified the architecture for the challenge while keeping it extensible f
 * **AI Leverage:**
 
   * ChatGPT helped resolve questions and deep research on DOTS in 3 hours (vs. ~8 hours of searching through documents and videos).
-  * ChatGPT helped refactor and understand multiplayer scripts in 10 hours. (vs. ~48 hours of understanding and manual coding)
+  * ChatGPT helped refactor and understand multiplayer scripts in 10 hours. (vs. ~48 hours of understanding and manual coding / LOC saved ~3500 lines of code)
   * ChatGPT helped find better design solutions to apply to the project code in 3 hours. (vs. ~12 researching the application of design and architecture patterns for DOTS in documentation)
+  * ChatGPT helped with bug fixing in the scripts created for the new features in ~4 hours. (vs. ~12 manually fixing each of the bugs found / LOC saved ~400 lines of code)
+  * ChatGPT helped with the implementation of new tactical arena features in code in 12 hours. (vs ~24 manual implementation of new features / LOC saved ~1500 lines of code)
 ---
 
 ## 5. Optimization and Performance Evidence

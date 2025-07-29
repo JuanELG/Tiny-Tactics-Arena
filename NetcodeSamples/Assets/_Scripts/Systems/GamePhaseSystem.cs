@@ -22,7 +22,7 @@ public partial struct GamePhaseSystem : ISystem
 
         if (!hasInitialized)
         {
-            phase.Value = GamePhase.Positioning;
+            phase.Value = GamePhase.ShipPositioning;
             phase.Timer = settings.positioningDuration;
 
             var entity = state.EntityManager.CreateEntity();
@@ -33,17 +33,29 @@ public partial struct GamePhaseSystem : ISystem
             return;
         }
 
-        if (phase.Value == GamePhase.Positioning)
+        switch (phase.Value)
         {
-            phase.Timer -= SystemAPI.Time.DeltaTime;
+            case GamePhase.ShipPositioning:
+                if (!state.EntityManager.CreateEntityQuery(typeof(PendingShipPlacement)).IsEmpty)
+                    break;
 
-            if (phase.Timer <= 0f)
-            {
+                phase.Value = GamePhase.AsteroidsPositioning;
+                phase.Timer = settings.positioningDuration;
+
+                var e = state.EntityManager.CreateEntity();
+                state.EntityManager.AddComponentData(e, new PendingAsteroidPlacement { Remaining = 3 });
+
+                SystemAPI.SetComponent(phaseEntity, phase);
+                break;
+
+            case GamePhase.AsteroidsPositioning:
+                if (!state.EntityManager.CreateEntityQuery(typeof(PendingAsteroidPlacement)).IsEmpty)
+                    break;
+
                 phase.Value = GamePhase.Battle;
                 phase.Timer = 0f;
-            }
-
-            SystemAPI.SetComponent(phaseEntity, phase);
+                SystemAPI.SetComponent(phaseEntity, phase);
+                break;
         }
     }
 }

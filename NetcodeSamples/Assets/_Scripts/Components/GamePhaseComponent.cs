@@ -8,6 +8,7 @@ public struct GamePhaseComponent : IComponentData
 
 public enum GamePhase : byte
 {
-    Positioning = 0,
-    Battle = 1
+    ShipPositioning = 0,
+    AsteroidsPositioning = 1,
+    Battle = 2
 }

@@ -19,6 +19,10 @@ public partial struct SinglePlayerSteeringSystem : ISystem
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
+        var gamePhase = SystemAPI.GetSingleton<GamePhaseComponent>();
+        if (gamePhase.Value != GamePhase.Battle)
+            return;
+
         var deltaTime = SystemAPI.Time.DeltaTime;
         var level = SystemAPI.GetSingleton<GameSettings>().levelData;
         var bulletPrefab = SystemAPI.GetSingleton<AsteroidsSpawner>().Bullet;

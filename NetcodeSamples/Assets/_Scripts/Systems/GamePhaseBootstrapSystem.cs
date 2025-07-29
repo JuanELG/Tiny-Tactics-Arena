@@ -17,7 +17,7 @@ public partial struct GamePhaseBootstrapSystem : ISystem
             Entity entity = state.EntityManager.CreateEntity();
             state.EntityManager.AddComponentData(entity, new GamePhaseComponent
             {
-                Value = GamePhase.Positioning,
+                Value = GamePhase.ShipPositioning,
                 Timer = settings.positioningDuration
             });
         }

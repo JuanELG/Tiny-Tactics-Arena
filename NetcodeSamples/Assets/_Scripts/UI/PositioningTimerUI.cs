@@ -25,7 +25,7 @@ public class PositioningTimerUI : MonoBehaviour
 
         var gamePhase = query.GetSingleton<GamePhaseComponent>();
 
-        if (gamePhase.Value == GamePhase.Positioning)
+        if (gamePhase.Value == GamePhase.ShipPositioning)
             timerText.text = $"Deploy Units: {Mathf.CeilToInt(gamePhase.Timer)}s";
         else
             timerText.text = "";

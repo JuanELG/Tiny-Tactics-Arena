@@ -64,7 +64,7 @@ public partial struct AsteroidRenderSystem : ISystem
         public void Execute(Entity entity, ref LocalTransform localTransform)
         {
             if (colorFromEntity.HasComponent(entity))
-                colorFromEntity[entity] = new URPMaterialPropertyBaseColor { Value = new float4(1, 1, 1, 1) };
+                colorFromEntity[entity] = new URPMaterialPropertyBaseColor { Value = new float4(0, 1, 0, 1) };
 
             localTransform.Scale = astrScale * pulse;
         }

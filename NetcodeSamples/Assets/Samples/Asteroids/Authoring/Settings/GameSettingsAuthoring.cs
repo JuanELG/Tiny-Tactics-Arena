@@ -6,6 +6,8 @@ public class GameSettingsAuthoring : MonoBehaviour
 {
     [RegisterBinding(typeof(GameSettings), "levelData")]
     public LevelComponent levelData;
+    [RegisterBinding(typeof(GameSettings), "positioningDuration")]
+    public float positioningDuration = 10f;
 
     class Baker : Baker<GameSettingsAuthoring>
     {
@@ -13,6 +15,7 @@ public class GameSettingsAuthoring : MonoBehaviour
         {
             GameSettings component = default(GameSettings);
             component.levelData = authoring.levelData;
+            component.positioningDuration = authoring.positioningDuration;
             var entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, component);
         }

@@ -24,7 +24,8 @@ public partial struct ConvertAsteroidsToDynamicSystem : ISystem
                 typeof(LocalTransform)
             },
             None = new ComponentType[] {
-                typeof(DynamicAsteroidTag)
+                typeof(DynamicAsteroidTag),
+                typeof(PlayerPlacedAsteroidTag)
             }
         });
     }

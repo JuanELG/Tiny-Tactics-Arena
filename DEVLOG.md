@@ -26,10 +26,11 @@
 |    7      | Remove multiplayer scripts(AI usage)      		 | 3e58c38a		      	 |
 |    8      | Refactor useful scripts for single-player(AI usage)      	 | 2ab42bcb		      	 |
 |    9      | Update level settings and input handling(AI usage)	 | 5e01542e		      	 |
-|    10     | Refactor Asteroids systems	and update scenes	(AI usage)	 | 6b631512		      	 |
+|    10     | Refactor Asteroids systems and update scenes(AI usage)	 | 6b631512		      	 |
 |    11     | Adjust asteroid and player zone spawn positions(AI usage)	 | c879ab34		      	 |
-|    12     | Game phase system and ship deployment with touch(AI usage)	 | 8779738d		      	 |
+|    12     | Game phase system and ship deployment with touch(AI usage) | 8779738d		      	 |
 |    13     | Collision zones and improve ship placement logic(AI usage) | 3e4e0a28		      	 |
+|    14     | asteroid placement phase, refactor placement...(AI usage) 	 | a6db8499		      	 |
 ---
 
 ## 3. Key Design Decisions
@@ -63,9 +64,11 @@ This simplified the architecture for the challenge while keeping it extensible f
 
   * ChatGPT helped resolve questions and deep research on DOTS in 3 hours (vs. ~8 hours of searching through documents and videos).
   * ChatGPT helped refactor and understand multiplayer scripts in 10 hours. (vs. ~48 hours of understanding and manual coding / LOC saved ~3500 lines of code)
-  * ChatGPT helped find better design solutions to apply to the project code in 3 hours. (vs. ~12 researching the application of design and architecture patterns for DOTS in documentation)
-  * ChatGPT helped with bug fixing in the scripts created for the new features in ~4 hours. (vs. ~12 manually fixing each of the bugs found / LOC saved ~400 lines of code)
-  * ChatGPT helped with the implementation of new tactical arena features in code in 12 hours. (vs ~24 manual implementation of new features / LOC saved ~1500 lines of code)
+  * ChatGPT helped find better design solutions to apply to the project code in 3 hours. (vs. ~12 hours researching the application of design and architecture patterns for DOTS in documentation)
+  * ChatGPT helped with bug fixing in the scripts created for the new features in ~4 hours. (vs. ~12 hours manually fixing each of the bugs found / LOC saved ~400 lines of code)
+  * ChatGPT helped with the implementation of new tactical arena features in code in 12 hours. (vs ~24 hours manual implementation of new features / LOC saved ~1500 lines of code)
+  * Github Copilot helped with code autocompletion. (LOC saved ~600 lines of code)
+  * Github Copilot helped generate commit messages for changes uploaded to the repository. (Time saved ~2 hours manual writing of each commit message)
 ---
 
 ## 5. Optimization and Performance Evidence

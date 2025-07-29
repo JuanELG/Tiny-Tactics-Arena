@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using Unity.NetCode.Samples.Common;
 using Unity.Transforms;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [BurstCompile]
@@ -82,6 +83,7 @@ public partial struct AsteroidPlacementSystem : ISystem
             InitialAngle = math.degrees(math.atan2(rotation.value.z, rotation.value.w)) * 2f,
             SpawnTime = (float)SystemAPI.Time.ElapsedTime
         });
+        ecb.AddComponent(asteroid, new PlayerPlacedAsteroidTag());
 
         foreach (var (placement, ent) in SystemAPI.Query<RefRW<PendingAsteroidPlacement>>().WithEntityAccess())
         {
